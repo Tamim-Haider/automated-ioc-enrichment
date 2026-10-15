@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>IOC Threat Intelligence Dashboard</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #020617;
+            padding: 25px 40px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .search-box {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-box h2 {
+            margin-bottom: 15px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-form input {
+            flex: 1;
+            padding: 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: white;
+            font-size: 15px;
+        }
+
+        .search-form button {
+            padding: 14px 25px;
+            background: #2563eb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background: #1d4ed8;
+        }
+
+        .section-title {
+            margin: 25px 0 15px 0;
+            font-size: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(250px, 1fr));
+
+            gap: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 22px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            color: #f8fafc;
+        }
+
+        .card p {
+            margin: 8px 0;
+            color: #cbd5e1;
+        }
+
+        .label {
+            color: #94a3b8;
+        }
+
+        .risk-card {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .risk-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .risk-level {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .low {
+            color: #22c55e;
+        }
+
+        .medium {
+            color: #eab308;
+        }
+
+        .high {
+            color: #f97316;
+        }
+
+        .critical {
+            color: #ef4444;
+        }
+
+        .findings {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .finding {
+            padding: 12px;
+            margin: 8px 0;
+            background: #0f172a;
+            border-left: 3px solid #2563eb;
+            border-radius: 4px;
+        }
+
+        .correlation {
+            background: #1e293b;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+
+        .correlation-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #0f172a;
+            border-radius: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .container {
+                width: 95%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div style="
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 20px;
+">
+
+    {% if stats %}
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    ">
+
+        <div style="
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="font-size: 13px; color: #94a3b8;">
+                TOTAL IOCs
+            </div>
+
+            <div style="
+                font-size: 32px;
+                font-weight: bold;
+                margin-top: 8px;
+            ">
+                {{ stats.total_iocs }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #064e3b;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="font-size: 13px; color: #a7f3d0;">
+                LOW RISK
+            </div>
+
+            <div style="
+                font-size: 32px;
+                font-weight: bold;
+                margin-top: 8px;
+            ">
+                {{ stats.low }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #78350f;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="font-size: 13px; color: #fde68a;">
+                MEDIUM RISK
+            </div>
+
+            <div style="
+                font-size: 32px;
+                font-weight: bold;
+                margin-top: 8px;
+            ">
+                {{ stats.medium }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #7f1d1d;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="font-size: 13px; color: #fecaca;">
+                HIGH RISK
+            </div>
+
+            <div style="
+                font-size: 32px;
+                font-weight: bold;
+                margin-top: 8px;
+            ">
+                {{ stats.high }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #450a0a;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="font-size: 13px; color: #fca5a5;">
+                CRITICAL
+            </div>
+
+            <div style="
+                font-size: 32px;
+                font-weight: bold;
+                margin-top: 8px;
+            ">
+                {{ stats.critical }}
+            </div>
+        </div>
+
+    </div>
+
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    ">
+
+        <div style="
+            background: #111827;
+            padding: 18px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="color: #9ca3af;">
+                VirusTotal Malicious
+            </div>
+
+            <div style="
+                font-size: 25px;
+                font-weight: bold;
+                margin-top: 6px;
+            ">
+                {{ stats.vt_malicious }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #111827;
+            padding: 18px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="color: #9ca3af;">
+                VirusTotal Suspicious
+            </div>
+
+            <div style="
+                font-size: 25px;
+                font-weight: bold;
+                margin-top: 6px;
+            ">
+                {{ stats.vt_suspicious }}
+            </div>
+        </div>
+
+
+        <div style="
+            background: #111827;
+            padding: 18px;
+            border-radius: 10px;
+            color: white;
+        ">
+            <div style="color: #9ca3af;">
+                AbuseIPDB Reports
+            </div>
+
+            <div style="
+                font-size: 25px;
+                font-weight: bold;
+                margin-top: 6px;
+            ">
+                {{ stats.abuse_reports }}
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+<div class="header">
+
+    <h1>IOC Threat Intelligence Dashboard</h1>
+
+    <p>
+        Automated IOC Enrichment and Threat Intelligence Analysis System
+    </p>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- IOC SEARCH -->
+
+    <div class="search-box">
+
+        <h2>Analyze IP Address</h2>
+
+        <form method="POST"
+              class="search-form">
+
+            <input
+                type="text"
+                name="ip"
+                placeholder="Enter IP address, e.g. 8.8.8.8"
+                required
+            >
+
+            <button type="submit">
+                Analyze IOC
+            </button>
+
+        </form>
+
+    </div>
+
+
+    {% if result %}
+<div style="margin-top: 20px;">
+
+    <a
+        href="/feed"
+        style="
+            display: inline-block;
+            padding: 12px 20px;
+            background: #dc2626;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        "
+    >
+        Fetch Threat Intelligence Feed
+    </a>
+
+</div>
+
+    <!-- BASIC INFORMATION -->
+
+    <h2 class="section-title">
+        IOC Information
+    </h2>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>IP Address</h3>
+
+            <p>
+                {{ result.ip }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Status</h3>
+
+            <p>
+                {{ result.status }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Risk Score</h3>
+
+            <p class="risk-score">
+                {{ result.risk.score }}/100
+            </p>
+
+            <p class="risk-level">
+                {{ result.risk.level }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- VIRUSTOTAL -->
+
+    <h2 class="section-title">
+        VirusTotal Intelligence
+    </h2>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>Detection Statistics</h3>
+
+            <p>
+                <span class="label">Malicious:</span>
+                {{ result.virustotal.malicious }}
+            </p>
+
+            <p>
+                <span class="label">Suspicious:</span>
+                {{ result.virustotal.suspicious }}
+            </p>
+
+            <p>
+                <span class="label">Harmless:</span>
+                {{ result.virustotal.harmless }}
+            </p>
+
+            <p>
+                <span class="label">Undetected:</span>
+                {{ result.virustotal.undetected }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Network Information</h3>
+
+            <p>
+                <span class="label">Country:</span>
+                {{ result.virustotal.country }}
+            </p>
+
+            <p>
+                <span class="label">ASN:</span>
+                {{ result.virustotal.asn }}
+            </p>
+
+            <p>
+                <span class="label">AS Owner:</span>
+                {{ result.virustotal.as_owner }}
+            </p>
+
+            <p>
+                <span class="label">Network:</span>
+                {{ result.virustotal.network }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Reputation</h3>
+
+            <p>
+                {{ result.virustotal.reputation }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ABUSEIPDB -->
+
+    <h2 class="section-title">
+        AbuseIPDB Intelligence
+    </h2>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>Abuse Information</h3>
+
+            <p>
+                <span class="label">
+                    Confidence Score:
+                </span>
+
+                {{ result.abuseipdb.abuse_confidence_score }}%
+            </p>
+
+            <p>
+                <span class="label">
+                    Total Reports:
+                </span>
+
+                {{ result.abuseipdb.total_reports }}
+            </p>
+
+            <p>
+                <span class="label">
+                    Distinct Users:
+                </span>
+
+                {{ result.abuseipdb.distinct_users }}
+            </p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>Network Information</h3>
+
+            <p>
+                <span class="label">ISP:</span>
+                {{ result.abuseipdb.isp }}
+            </p>
+
+            <p>
+                <span class="label">Country:</span>
+                {{ result.abuseipdb.country }}
+            </p>
+
+            <p>
+                <span class="label">Usage Type:</span>
+                {{ result.abuseipdb.usage_type }}
+            </p>
+
+            <p>
+                <span class="label">Domain:</span>
+                {{ result.abuseipdb.domain }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- CORRELATION -->
+
+    <h2 class="section-title">
+        Source Correlation
+    </h2>
+
+    <div class="correlation">
+
+        <p>
+            Cross-source agreements:
+            <strong>
+                {{ result.correlation.cross_source_agreements }}
+            </strong>
+        </p>
+
+
+        {% for item in result.correlation.evidence %}
+
+        <div class="correlation-item">
+
+            {{ item }}
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- FINDINGS -->
+
+    <h2 class="section-title">
+        Analysis Findings
+    </h2>
+
+    <div class="findings">
+
+
+        {% if result.analysis.findings %}
+
+            {% for finding in result.analysis.findings %}
+
+                <div class="finding">
+
+                    {{ finding }}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="finding">
+
+                No significant findings were identified.
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+<div class="footer">
+
+    Automated IOC Enrichment and Threat Intelligence Analysis System
+
+</div>
+
+
+</body>
+
+</html>
